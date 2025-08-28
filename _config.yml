@@ -1,0 +1,5 @@
+title: "Lab Notebook"
+description: "Daily notes on synths, tech, and experiments"
+theme: minima
+plugins:
+  - jekyll-feed
