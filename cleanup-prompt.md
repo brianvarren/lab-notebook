@@ -1,0 +1,1 @@
+Please clean this up for grammar, clarity, and flow—remove filler words and run-ons—but don’t rewrite or change my meaning. Keep the voice and structure as close to the original as possible.
