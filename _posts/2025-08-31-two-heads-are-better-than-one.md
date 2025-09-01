@@ -1,4 +1,6 @@
 
+
+
 Today is a really exciting and important day for me, because I’m working on the Lung Loop Sampler—an idea that has evolved through several iterations, starting as a Reaktor instrument I fell in love with, and now finally finding its way into hardware form, where it feels like it’s becoming real in a way it never quite was on a screen. The milestone that makes today different is the waveform view on the display finally coming to life: a wide 256×64 window that feels perfectly built for this job, capable of showing samples in real time, complete with loop points, updated boundaries, and the playback head moving across the field, all the things I’ve been imagining since this idea first took hold.
 
 Getting here has meant building up subsystems one at a time—the display driver, the encoder and menu system—and now the module boots, runs its load sequence, indexes the SD card, and presents a file list I can scroll through with the encoder, smooth and intuitive, the kind of interaction that feels good in the fingers. Clicking loads a file, and from there the chain of processing begins: peak detection, normalization to –3 dB, conversion into Q15 fixed-point so the data is ready for efficient manipulation, then scaled down to 12-bit just before PWM output. It’s a careful balance between preserving fidelity and keeping things light enough to run, and while PWM output is a compromise, it’s also fast, cheap, and good enough to start making music without waiting for the more complex codec path that will come later, when stereo output and higher quality become the goal.
@@ -19,3 +21,15 @@ I didn’t want to throw the whole DACless library in yet, and this made me real
 So the split is necessary: DACless will now be strictly PWM output. ADC will live in its own library. Claude has been calling this “ADC Capture,” which is fine, though I had hoped for something like “ADC-less” to parallel DACless—meaning, no dedicated ADC chip, just the built-ins. Either way, it’s not a big deal. I can batch rename later if I want.
 
 This is a big step, because it sets me up to get loop points on the display and watch them update in real time as the knobs move. That’s going to be exciting.
+
+--- 
+
+I worked a lot today, hours straight, and I learned a lot and tried a lot of things. The first half of the day was all about getting to the point where I had a waveform view on the screen after being able to browse files and select one to load, and the moment I had that working my next thought was obvious: I need to get loop start, loop length, and a playhead going on that waveform view, all of those mechanics figured out so they can draw in real time. The first step toward that was getting ADC input into the sketch, but before I could do that I had to split my DACless library into two parts, one for ADC and one for PWM output. That alone took about an hour of back-and-forth—cutting it apart, reorganizing, and testing to make sure it still worked.
+
+  
+
+Once I had that split, I decided to push forward and I gave the output to Opus first, asking it to build a system where I could draw a vertical line representing the position of ADC zero, something that would sweep left and right across the waveform display as I turned a knob, an overlay that could stand in for a playhead or loop start. That led into a huge rabbit hole: new files, a whole overlay module, endless attempts at just drawing the line and then restoring the waveform pixels behind it after it moved. The whole thing turned into a nightmare, full of wrangling little compile errors because I was touching so many files at once, and on top of that I was running into U8G2’s overhead—Claude’s initial code had leaned on a slow U8G2 function and the inefficiency was killing me.
+
+  
+
+Eventually I figured that part out, but not before spending a lot of time wrestling with broken pieces, and in the end I couldn’t get it to work cleanly. I was just banging my head against the wall, so I rolled everything back to my last commit, the one with the working waveform view, and left it there. The silver lining is that the DACless split is done now, so that piece is out of the way. The next step is to take another run at it, this time starting with the efficient block that can push the whole frame buffer quickly. The plan is to calculate the waveform envelope once, store it in a buffer, and then transmit that along with loop points, shader boxes, and the playhead at 60 frames per second. That should get me where I want to go.
